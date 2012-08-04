@@ -16,3 +16,4 @@ barcode.clj
 configparse.clj
 pdftoc.clj
 resources/
+*.png
