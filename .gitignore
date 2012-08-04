@@ -1,0 +1,14 @@
+/target
+/lib
+/classes
+/checkouts
+pom.xml
+*.jar
+*.class
+.lein-deps-sum
+.lein-failures
+.lein-plugins
+1.png
+2.png
+3.png
+4.png
