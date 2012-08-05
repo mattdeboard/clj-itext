@@ -48,7 +48,7 @@ additional metadata to add to the instance."
   [infile & [moremeta]]
   (let [metadata (merge {:filename infile} moremeta)]
     (proxy [PdfReader clojure.lang.IObj] [infile]
-      (withMeta [newmeta] (proxy-meta infile (merge metadata newmeta)))
+      (withMeta [newmeta] (proxy-meta infile newmeta))
       (meta [] metadata))))
 
 (defn pdf<-
