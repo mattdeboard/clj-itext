@@ -57,5 +57,5 @@ to access various data about the PDF, such as the filename of the PDF, the
 number of pages, and so forth."
   [infile]
   (let [rdr (proxy-meta infile)]
-    (with-meta rdr {:pagecount (. rdr getNumberOfPages)})))
+    (vary-meta rdr assoc :pagecount (. rdr getNumberOfPages))))
 
