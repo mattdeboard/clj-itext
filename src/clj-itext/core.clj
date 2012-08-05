@@ -38,18 +38,18 @@ iText API.
         outpath (partial output-path (join "/" path) filename ext)]
     (for [pn pages]
       (with-open [os (clojure.java.io/output-stream (outpath pn))]
-        (->> os (copy-page doc) (write-pdf pn reader))))
-    (str "Processed " (:pagecount (meta reader)) " PDF pages.")))
+        (->> os (copy-page doc) (write-pdf pn reader))))))
 
 (defn proxy-meta
   "Returns an anonymous class instance, constructed with the file on the path
 indicated by `infile', annotated with metadata indicating the filename used to
 construct the instance. Optional `moremeta' is a single map containing any
 additional metadata to add to the instance."
-  [infile]
-  (proxy [PdfReader clojure.lang.IObj] [infile]
-    (withMeta [metadata] (proxy-meta infile (merge {:filename infile} metadata)))
-    (meta [] metadata))))
+  [infile & [moremeta]]
+  (let [metadata (merge {:filename infile} moremeta)]
+    (proxy [PdfReader clojure.lang.IObj] [infile]
+      (withMeta [newmeta] (proxy-meta infile (merge metadata newmeta)))
+      (meta [] metadata))))
 
 (defn pdf<-
   "Returns PdfReader instance. The returned instance has metadata attached
