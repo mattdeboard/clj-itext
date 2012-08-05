@@ -3,27 +3,6 @@
   (:import [com.itextpdf.text Document]
            [com.itextpdf.text.pdf PdfCopy PdfReader]))
 
-(defn proxy-meta
-  "Returns an anonymous class instance, constructed with the file on the path
-indicated by `infile', annotated with metadata indicating the filename used to
-construct the instance. Optional `moremeta' is a single map containing any
-additional metadata to add to the instance."
-  [infile & moremeta]
-  (let [metadata (merge {:filename infile} (first moremeta))]
-    (proxy [PdfReader clojure.lang.IObj] [infile]
-      (withMeta [new-meta] (merge metadata new-meta))
-      (meta [] metadata))))
-
-(defn with-proxy-meta
-  "Returns a new copy of `obj' with metadata updated as indicated by
-`metadata'.
-
-Usage: `(with-proxy-meta (pdf<- path-to-pdf) {:foo 100})'
-"
-  [obj metadata]
-  (let [key :filename
-        new-meta (merge (meta obj) metadata)]
-    (proxy-meta (key new-meta) (dissoc new-meta key))))
 
 (defn- copy-page
   "Creates a PdfCopy instance and, after opening the associated document,
@@ -62,15 +41,21 @@ iText API.
         (->> os (copy-page doc) (write-pdf pn reader))))
     (str "Processed " (:pagecount (meta reader)) " PDF pages.")))
 
+(defn proxy-meta
+  "Returns an anonymous class instance, constructed with the file on the path
+indicated by `infile', annotated with metadata indicating the filename used to
+construct the instance. Optional `moremeta' is a single map containing any
+additional metadata to add to the instance."
+  [infile]
+  (proxy [PdfReader clojure.lang.IObj] [infile]
+    (withMeta [metadata] (proxy-meta infile (merge {:filename infile} metadata)))
+    (meta [] metadata))))
+
 (defn pdf<-
   "Returns PdfReader instance. The returned instance has metadata attached
 to access various data about the PDF, such as the filename of the PDF, the
 number of pages, and so forth."
   [infile]
-  (let [rdr (proxy-meta infile)
-        pages (. rdr getNumberOfPages)]
-    (with-proxy-meta rdr {:pagecount pages})))
-
-
-
+  (let [rdr (proxy-meta infile)]
+    (with-meta rdr {:pagecount (. rdr getNumberOfPages)})))
 
