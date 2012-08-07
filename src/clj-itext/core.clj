@@ -1,6 +1,6 @@
 (ns render-pdf.core
   (:use [clojure.string :only (split join)])
-  (:import [com.itextpdf.text Document]
+  (:import [com.itextpdf.text Document PageSize Paragraph]
            [com.itextpdf.text.pdf PdfCopy PdfReader PdfWriter]))
 
 
@@ -59,22 +59,24 @@ number of pages, and so forth."
   (let [rdr ((proxy-meta PdfReader) infile)]
     (vary-meta rdr assoc :pagecount (. rdr getNumberOfPages))))
 
-(defn ->pdf
-  "Returns a PdfWriter instance."
-  [outfile]
-  (with-open [w (clojure.java.io/output-stream outfile)]
-    (let [doc (doto (new Document) (.open))
-          wrtr (PdfWriter/getInstance doc w)]
-      (. wrtr open)
-      wrtr)))
+(defmacro ->pdf
+  "Evaluates `body' as an operation against either the Document or
+PdfWriter instance.
 
-;; (macroexpand-1
-;;  `(let [w (->pdf "resources/foo1.pdf")]
-;;     (. w getDirectContent)
-;;     (. w close)))
+Inputs:
+  :entity - Valid values for this are:
+            :writer
+            :document (default)
+  :body     The expression to evaluate.
+"
+  [outfile & {:keys [entity body]
+              :or {entity :document}}]
+  `(let [document# (Document. PageSize/A4 50 50 50 50)]
+     (with-open [pw# (PdfWriter/getInstance
+                      document#
+                      (clojure.java.io/output-stream ~outfile))
+                 doc# (doto document# (.open))]
+       (if (= ~entity :writer)
+         (doto pw# ~@body)
+         (doto doc# ~@body)))))
 
-;; (let [[d w] (->pdf "resources/foo1.pdf")]
-;;   (. w getDirectContent)
-;;   (. d isOpen))
-;; (with-pdf-open [w (->pdf "resources/foo1.pdf")]
-;;   (. w getDirectContent))
