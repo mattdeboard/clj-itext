@@ -55,7 +55,7 @@ args to proxy a given class, extending it to implement the `IObj' interface."
   "Returns PdfReader instance. The returned instance has metadata attached
 to access various data about the PDF, such as the filename of the PDF, the
 number of pages, and so forth."
-  [infile]
+  [^String infile]
   (let [rdr ((proxy-meta PdfReader) infile)]
     (vary-meta rdr assoc :pagecount (. rdr getNumberOfPages))))
 
@@ -69,8 +69,8 @@ Inputs:
             :document (default)
   :body     The expression to evaluate.
 "
-  [outfile & {:keys [entity body]
-              :or {entity :document}}]
+  [^String outfile & {:keys [entity body]
+                      :or {entity :document}}]
   `(let [document# (Document. PageSize/A4 50 50 50 50)]
      (with-open [pw# (PdfWriter/getInstance
                       document#
