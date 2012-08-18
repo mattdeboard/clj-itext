@@ -3,7 +3,6 @@
   (:import [com.itextpdf.text Document PageSize Paragraph]
            [com.itextpdf.text.pdf PdfCopy PdfReader PdfWriter]))
 
-
 (defn- copy-page
   "Creates a PdfCopy instance and, after opening the associated document,
 returns it.
@@ -38,7 +37,9 @@ iText API.
         outpath (partial output-path (join "/" path) filename ext)]
     (for [pn pages]
       (with-open [os (clojure.java.io/output-stream (outpath pn))]
-        (->> os (copy-page doc) (write-pdf pn reader))))))
+        (->> os (copy-page doc) (write-pdf pn reader))
+        (outpath pn)
+        ))))
 
 (defmacro proxy-meta
   "This macro emits a function that can then be called with the appropriate
