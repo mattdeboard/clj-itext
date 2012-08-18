@@ -1,4 +1,4 @@
-(ns render-pdf.utils
+(ns clj-itext.utils
   (:import [com.itextpdf.text Document]))
 
 (defn pdf? [d]
