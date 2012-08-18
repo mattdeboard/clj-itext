@@ -1,4 +1,4 @@
-(ns render-pdf.core
+(ns clj-itext.core
   (:use [clojure.string :only (split join)])
   (:import [com.itextpdf.text Document PageSize Paragraph]
            [com.itextpdf.text.pdf PdfCopy PdfReader PdfWriter]))
