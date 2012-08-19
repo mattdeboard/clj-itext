@@ -1,7 +1,7 @@
 (ns clj-itext.core
   (:use [clojure.string :only (split join)])
   (:import [com.itextpdf.text Document PageSize Paragraph]
-           [com.itextpdf.text.pdf PdfCopy PdfReader PdfWriter]))
+           [com.itextpdf.text.pdf PdfCopy PdfReader PdfWriter SimpleBookmark]))
 
 (defn- copy-page
   "Creates a PdfCopy instance and, after opening the associated document,
@@ -57,27 +57,8 @@ args to proxy a given class, extending it to implement the `IObj' interface."
 to access various data about the PDF, such as the filename of the PDF, the
 number of pages, and so forth."
   [^String infile]
-  (let [rdr ((proxy-meta PdfReader) infile)]
-    (vary-meta rdr assoc :pagecount (. rdr getNumberOfPages))))
-
-(defmacro ->pdf
-  "Evaluates `body' as an operation against either the Document or
-PdfWriter instance.
-
-Inputs:
-  :entity - Valid values for this are:
-            :writer
-            :document (default)
-  :body     The expression to evaluate.
-"
-  [^String outfile & {:keys [entity body]
-                      :or {entity :document}}]
-  `(let [document# (Document. PageSize/A4 50 50 50 50)]
-     (with-open [pw# (PdfWriter/getInstance
-                      document#
-                      (clojure.java.io/output-stream ~outfile))
-                 doc# (doto document# (.open))]
-       (if (= ~entity :writer)
-         (doto pw# ~@body)
-         (doto doc# ~@body)))))
+  (let [rdr ((proxy-meta PdfReader) infile)
+        bm (SimpleBookmark/getBookmark rdr)
+        ct (. rdr getNumberOfPages)]
+    (vary-meta rdr assoc :pagecount ct :bookmarks bm)))
 
