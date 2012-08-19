@@ -1,4 +1,4 @@
-(defproject clj-itext "0.1.0-SNAPSHOT"
+(defproject clj-itext "0.2.0"
   :description "Clojure API for iText Java bindings."
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
